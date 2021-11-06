@@ -1,0 +1,19 @@
+targets:
+  $default:
+    builders:
+      mobx_codegen|mobx_generator:
+        generate_for:
+          - "lib/**/controller*/**.dart"
+          - "lib/**/store*/**.dart"
+          - "lib/**/*controller.dart"
+          - "lib/**/*store.dart"
+          - "test/mocks/controller.mocks.dart"
+      # json_serializable|json_serializable:
+      #   options:
+      #     any_map: true
+      #   generate_for:
+      #     - "**/model*/**.dart"
+      #     - "**/dto*/**.dart"
+      # freezed|freezed:
+      #   generate_for:
+      #     - "**/**.f.dart"

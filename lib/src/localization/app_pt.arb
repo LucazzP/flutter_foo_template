@@ -1,0 +1,7 @@
+{
+  "appTitle": "new_flutter_template",
+  "@appTitle": {
+    "description": "The title of the application"
+  },
+  "ok": "Ok"
+}

@@ -1,0 +1,17 @@
+//
+//  prod.xcconfig
+//  Runner
+//
+//  Created by Lucas Polazzo on 18/09/20.
+//
+
+// Configuration settings file format documentation can be found at:
+// https://help.apple.com/xcode/#/dev745c5c974
+
+#include "Pods/Target Support Files/Pods-Runner/Pods-Runner.release-prod.xcconfig"
+#include "Generated.xcconfig"
+
+BUNDLE_ID_SUFFIX=
+PRODUCT_BUNDLE_IDENTIFIER=com.example.foo
+FLUTTER_TARGET=lib/main_production.dart
+APP_NAME=Foo
