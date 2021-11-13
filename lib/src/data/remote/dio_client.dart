@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:foo/src/core/constants.dart';
 
+import 'api_response.dart';
 import 'interceptors/auth_interceptor.dart';
 
 class DioClient {
@@ -17,7 +18,7 @@ class DioClient {
     _dio.options.baseUrl = flavor.baseUrl;
   }
 
-  Future<T?> delete<T>(
+  Future<ApiResponse<T?>> delete<T>(
     String path, {
     data,
     Map<String, dynamic>? queryParameters,
@@ -33,10 +34,10 @@ class DioClient {
         extra: extra,
       ),
     );
-    return res.data;
+    return ApiResponse.fromResponseDio(res);
   }
 
-  Future<T?> get<T>(
+  Future<ApiResponse<T?>> get<T>(
     String path, {
     Map<String, dynamic>? queryParameters,
     Map<String, dynamic>? headers,
@@ -52,10 +53,10 @@ class DioClient {
         extra: extra,
       ),
     );
-    return res.data;
+    return ApiResponse.fromResponseDio(res);
   }
 
-  Future<T?> patch<T>(
+  Future<ApiResponse<T?>> patch<T>(
     String path, {
     data,
     Map<String, dynamic>? queryParameters,
@@ -75,10 +76,10 @@ class DioClient {
         extra: extra,
       ),
     );
-    return res.data;
+    return ApiResponse.fromResponseDio(res);
   }
 
-  Future<T?> post<T>(
+  Future<ApiResponse<T?>> post<T>(
     String path, {
     data,
     Map<String, dynamic>? queryParameters,
@@ -98,10 +99,10 @@ class DioClient {
         extra: extra,
       ),
     );
-    return res.data;
+    return ApiResponse.fromResponseDio(res);
   }
 
-  Future<T?> put<T>(
+  Future<ApiResponse<T?>> put<T>(
     String path, {
     data,
     Map<String, dynamic>? queryParameters,
@@ -121,6 +122,6 @@ class DioClient {
         extra: extra,
       ),
     );
-    return res.data;
+    return ApiResponse.fromResponseDio(res);
   }
 }

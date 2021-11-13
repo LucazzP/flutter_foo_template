@@ -73,7 +73,7 @@ Future<void> main() async {
         const Left(kExpiredSession),
       );
       testAsFuncAndAsExt<String, String>(
-        'with BVAPIGenericErrorException',
+        'with APIGenericErrorException',
         () async => throw const APIGenericErrorException(''),
         const Left(kServerFailure),
       );

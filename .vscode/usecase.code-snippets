@@ -6,7 +6,7 @@
       "import 'package:foo/src/core/failures.dart';",
       "import 'package:foo/src/core/use_case.abstract.dart';",
       "",
-      "class ${1:${TM_FILENAME_BASE/(^((?!.usecase).)*)(.*)/${1:/pascalcase}/g}}UseCase implements BVBaseUseCase<${2:Data}, ${3:Param}> {",
+      "class ${1:${TM_FILENAME_BASE/(^((?!.usecase).)*)(.*)/${1:/pascalcase}/g}}UseCase implements BaseUseCase<${2:Data}, ${3:Param}> {",
       "  final ${4:Repository} _repo;",
       "",
       "  const $1UseCase(this._repo);",

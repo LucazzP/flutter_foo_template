@@ -70,7 +70,7 @@ Future<void> main() async {
     return key.currentState!;
   }
 
-  group('BVBasePage', () {
+  group('BasePage', () {
     group('Check default value of', () {
       testWidgets('background color is the AppColorScheme.colorScheme.background', (tester) async {
         final page = await buildPage(tester);
