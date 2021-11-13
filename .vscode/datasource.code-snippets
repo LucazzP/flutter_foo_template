@@ -1,0 +1,86 @@
+{
+  "DataSource": {
+    "scope": "dart",
+    "prefix": "dataSource",
+    "body": [
+      "abstract class ${1:${1:${TM_FILENAME_BASE/(^((?!.datasource).)*)(.*)/${1:/pascalcase}/g}}}DataSource {",
+      "  Future<${2:dynamic}> ${3:function}();",
+      "}",
+      ""
+    ],
+    "description": "DataSource abstract class"
+  },
+  "DataSource Impl": {
+    "scope": "dart",
+    "prefix": "dataSourceImpl",
+    "body": [
+      "import 'package:foo/src/api/api.abstract.dart';",
+      "import '${TM_FILENAME_BASE/(^((?!_impl).)*)(.*)/$1/g}.datasource.dart';",
+      "",
+      "class ${1:${TM_FILENAME_BASE/(^((?!_impl).)*)(.*)/${1:/pascalcase}/g}}DataSourceImpl implements $1DataSource {",
+      "  final BVBaseApi api;",
+      "",
+      "  const $1DataSourceImpl(this.api);",
+      "}",
+      ""
+    ],
+    "description": "DataSourceImpl class"
+  },
+
+  "DataSourceTest": {
+    "scope": "dart",
+    "prefix": "datasourceTest",
+    "body": [
+      "import 'package:flutter_test/flutter_test.dart';",
+      "import 'package:foo/src/api/api.abstract.dart';",
+      "import 'package:foo/src/api/exceptions.dart';",
+      "import 'package:foo/src/modules/${9:${TM_FILENAME_BASE/(^((?!.datasource_test).)*)(.*)/${1:/snakecase}/g}}/data/datasource/$9_impl.datasource.dart';",
+      "import 'package:foo/src/modules/$9/data/datasource/$9.datasource.dart';",
+      "",
+      "import '../../../../mocks/api_mock_utils.dart';",
+      "import '../../../../mocks/mocks.dart';",
+      "",
+      "main() {",
+      "  BVBaseApi baseApiMock;",
+      "  ${8:${TM_FILENAME_BASE/(^((?!.datasource_test).)*)(.*)/${1:/pascalcase}/g}}DataSource dataSource;",
+      "",
+      "  setUp(() {",
+      "    baseApiMock = BVBaseApiMock();",
+      "    dataSource = $8DataSourceImpl(baseApiMock);",
+      "  });",
+      "",
+      "  void mock$1For(BVBaseApiMock mock, {int responseCode = 200}) {",
+      "    final _when = when(mock.$3(",
+      "      $8DataSourceImpl.$2,",
+      "      ${4:false},",
+      "    ));",
+      "    if (responseCode == 200) {",
+      "      _when.thenAnswer((_) async => BVApiResponse.success(code: responseCode, data: ${7:{}}));",
+      "    } else {",
+      "      _when.thenThrow(BVAPIBadRequestException());",
+      "    }",
+      "  }",
+      "",
+      "  group('$8DataSource', () {",
+      "    group('$6 function', () {",
+      "      test('Should return a successful BVApiResponse', () async {",
+      "        mock$1For(baseApiMock, responseCode: 200);",
+      "",
+      "        final res = await dataSource.$6();",
+      "",
+      "        expect(res, isA<BVApiResponse>());",
+      "      });",
+      "",
+      "      test('Should throws an api error', () async {",
+      "        mock$1For(baseApiMock, responseCode: 400);",
+      "",
+      "        expect(() => dataSource.$6(), throwsA(isA<BVAPIBadRequestException>()));",
+      "      });",
+      "    });",
+      "  });",
+      "}",
+      ""
+    ],
+    "description": "DataSource Test"
+  }
+}

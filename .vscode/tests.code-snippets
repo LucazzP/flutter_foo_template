@@ -1,0 +1,20 @@
+{
+  "MainTests": {
+    "scope": "dart",
+    "prefix": "mainTest",
+    "body": [
+      "import 'package:flutter_test/flutter_test.dart';",
+      "",
+      "Future<void> main() async {",
+      "  group('Check ${1:${TM_FILENAME_BASE/(^((?!_test).)*)(.*)/${1:/pascalcase}/g}} happy path', () {",
+      "    test('${2:Verify something occuring correctly}', () {});",
+      "  });",
+      "  group('Check $1 unhappy path', () {",
+      "    test('${3:Verify something occuring incorrectly}', () {});",
+      "  });",
+      "}",
+      ""
+    ],
+    "description": "Generic Tests"
+  },
+}
