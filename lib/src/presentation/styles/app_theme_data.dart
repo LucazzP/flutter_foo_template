@@ -21,7 +21,6 @@ class AppThemeData {
     primaryTextTheme: const TextTheme(
       headline6: TextStyle(color: Colors.white),
     ),
-    primaryColorBrightness: Brightness.dark,
     brightness: Brightness.light,
     visualDensity: VisualDensity.adaptivePlatformDensity,
     textTheme: AppTextTheme.textTheme,

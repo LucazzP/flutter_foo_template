@@ -11,7 +11,10 @@ import 'package:foo/src/presentation/widgets/overlay/overlay.widget.dart';
 import 'package:mobx/mobx.dart' as mobx;
 import 'package:foo/src/extensions/context.ext.dart';
 
-abstract class BaseState<T extends StatefulWidget, S extends BaseStore> extends ModularState<T, S> {
+abstract class BaseState<T extends StatefulWidget, S extends BaseStore> extends State<T> {
+  final S _scope = Modular.get<S>();
+  S get controller => _scope;
+
   static const errorKey = Key('ErrorWidgetKey');
   final scaffoldKey = GlobalKey<ScaffoldState>();
   Color get bgColor => AppColorScheme.colorScheme.background;
@@ -71,6 +74,7 @@ abstract class BaseState<T extends StatefulWidget, S extends BaseStore> extends 
       dispose();
     }
     controller.dispose();
+    Modular.dispose<S>();
   }
 
   bool supportScrolling(BuildContext context) => context.isSmallDevice;
@@ -123,7 +127,7 @@ abstract class BaseState<T extends StatefulWidget, S extends BaseStore> extends 
           Observer(builder: (_) {
             return controller.hasFailure
                 ? ErrorWidget(
-                  key: errorKey,
+                    key: errorKey,
                     failure: controller.failure!,
                     clearErrorState: () {
                       controller.clearErrors();

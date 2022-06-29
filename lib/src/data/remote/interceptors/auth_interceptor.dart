@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 
-class AuthInterceptor extends InterceptorsWrapper {
+class AuthInterceptor extends QueuedInterceptorsWrapper {
   final Future<String> Function() getAuthToken;
   final Future<String> Function() getAuthTokenRefreshed;
 
@@ -8,13 +8,9 @@ class AuthInterceptor extends InterceptorsWrapper {
       : super(
           onError: (error, handler) async {
             if (error.response?.statusCode == 403) {
-              _dio.interceptors.requestLock.lock();
-              _dio.interceptors.responseLock.lock();
               final options = error.response?.requestOptions ?? error.requestOptions;
               options.headers['Authorization'] = 'Bearer ${await getAuthTokenRefreshed()}';
 
-              _dio.interceptors.requestLock.unlock();
-              _dio.interceptors.responseLock.unlock();
               handler.resolve(await _dio.request(
                 options.path,
                 options: Options(

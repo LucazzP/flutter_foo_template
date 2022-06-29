@@ -12,8 +12,8 @@ Future<void> main() async {
   RunApp(
     ModularApp(
       module: AppModule(Flavor.dev),
-      child: const AppWidget(),
       debugMode: true,
+      child: const AppWidget(),
     ),
     flavorValues: kFlavorDev,
     flavor: Flavor.dev,

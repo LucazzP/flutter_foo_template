@@ -5,10 +5,16 @@ extension StringExtensions on String {
   String get capitalizeAllFirstLetters =>
       replaceAll(RegExp(' +'), ' ').split(" ").map((str) => str.capitalizeFirstLetter).join(" ");
 
-  String withEllipse({int maxLength = 78, bool keepExt = true}) => length > maxLength
-      ? '${substring(0, maxLength - 3)}...'
-          '${keepExt ? ' ' + substring(length - 4, length) : ''}'
-      : this;
+  String withEllipse({int maxLength = 78, bool keepExt = true}) {
+    if (length > maxLength) {
+      var newString = '${substring(0, maxLength - 3)}...';
+      if (keepExt) {
+        newString += ' ${substring(length - 4, length)}';
+      }
+      return newString;
+    }
+    return this;
+  }
 
   String getNameFromEnum() {
     if (!contains('.')) return this;
