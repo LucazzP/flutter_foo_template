@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:foo/src/localization/app_localizations.dart';
+import 'package:foo/src/presentation/localization/app_localizations.dart';
 import 'package:foo/src/presentation/styles/app_theme_data.dart';
 
 import '../mocks/mocks.dart';

@@ -1,5 +1,7 @@
 import 'package:equatable/equatable.dart';
 
+class APIInvalidLoginCredentialsException extends ExceptionEquatable {}
+
 class APIClientNotLoggedException extends ExceptionEquatable {}
 
 class APINotConnectedException extends ExceptionEquatable {}

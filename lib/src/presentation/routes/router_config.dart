@@ -1,5 +1,5 @@
 import 'package:firebase_analytics/firebase_analytics.dart';
-import 'package:foo/src/modules/home/presentation/pages/home/home_page.dart';
+import 'package:foo/src/presentation/pages/home/home_page.dart';
 import 'package:foo/src/presentation/app_widget.dart';
 import 'package:foo/src/presentation/routes/routes.dart';
 import 'package:go_router/go_router.dart';

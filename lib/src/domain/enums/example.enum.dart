@@ -1,0 +1,3 @@
+enum ExampleEnum {
+  option1,
+}

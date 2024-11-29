@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart' hide ErrorWidget;
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:foo/src/extensions/context.ext.dart';
+import 'package:foo/src/presentation/extensions/context.ext.dart';
 import 'package:foo/src/presentation/base/controller/base.store.dart';
 import 'package:foo/src/presentation/base/pages/base.page.dart';
 import 'package:foo/src/presentation/styles/app_color_scheme.dart';

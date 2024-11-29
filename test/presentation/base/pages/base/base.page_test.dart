@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:foo/src/core/failures.dart';
-import 'package:foo/src/extensions/context.ext.dart';
+import 'package:foo/src/presentation/extensions/context.ext.dart';
 import 'package:foo/src/presentation/base/pages/reaction.dart' as react;
 import 'package:foo/src/presentation/base/pages/scaffold_base.page.dart';
 import 'package:foo/src/presentation/styles/app_color_scheme.dart';

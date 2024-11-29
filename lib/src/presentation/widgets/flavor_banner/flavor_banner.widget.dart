@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:foo/src/core/flavor/flavor_config.model.dart';
+import 'package:foo/src/core/flavor/build_config.model.dart';
 
 class FlavorBannerWidget extends StatelessWidget {
   final Widget child;
@@ -8,7 +8,7 @@ class FlavorBannerWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (FlavorConfig.isProduction) return child;
+    if (BuildConfig.isProduction) return child;
     return Stack(
       children: <Widget>[
         child,
@@ -23,11 +23,11 @@ class FlavorBannerWidget extends StatelessWidget {
       height: 50,
       child: CustomPaint(
         painter: BannerPainter(
-          message: FlavorConfig.name.toUpperCase(),
+          message: BuildConfig.name.toUpperCase(),
           textDirection: Directionality.of(context),
           layoutDirection: Directionality.of(context),
           location: BannerLocation.topStart,
-          color: FlavorConfig.color,
+          color: BuildConfig.color,
         ),
       ),
     );

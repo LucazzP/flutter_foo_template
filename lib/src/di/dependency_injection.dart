@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
-import 'package:foo/src/data/remote/dio_client.dart';
-import 'package:foo/src/data/remote/interceptors/auth_interceptor.dart';
-import 'package:foo/src/modules/logger/domain/log.usecase.dart';
+import 'package:foo/src/data/data_sources/remote/dio_client.dart';
+import 'package:foo/src/data/data_sources/remote/interceptors/auth_interceptor.dart';
+import 'package:foo/src/domain/use_cases/logger/log.usecase.dart';
 import 'package:get_it/get_it.dart';
 
 final _getIt = GetIt.instance;

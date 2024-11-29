@@ -1,21 +1,21 @@
 import 'package:flutter/material.dart';
-import 'package:foo/src/extensions/string.ext.dart';
+import 'package:foo/src/core/extensions/string.ext.dart';
 import 'flavor_values.model.dart';
 
 @immutable
-class FlavorConfig {
+class BuildConfig {
   final Flavor _flavor;
   final String _name;
   final Color _color;
   final FlavorValues _values;
-  static late final FlavorConfig _instance;
+  static late final BuildConfig _instance;
 
-  factory FlavorConfig({
+  factory BuildConfig({
     required Flavor flavor,
     Color color = Colors.blue,
     required FlavorValues values,
   }) {
-    _instance = FlavorConfig._internal(
+    _instance = BuildConfig._internal(
       flavor,
       flavor.toString().getNameFromEnum(),
       color,
@@ -25,17 +25,16 @@ class FlavorConfig {
   }
 
   @visibleForTesting
-  factory FlavorConfig.tests({
+  factory BuildConfig.tests({
     required Flavor flavor,
     Color color = Colors.blue,
     required FlavorValues values,
   }) {
-    _instance = FlavorConfig._internal(
-        flavor, flavor.toString().getNameFromEnum(), color, values);
+    _instance = BuildConfig._internal(flavor, flavor.toString().getNameFromEnum(), color, values);
     return _instance;
   }
 
-  const FlavorConfig._internal(this._flavor, this._name, this._color, this._values);
+  const BuildConfig._internal(this._flavor, this._name, this._color, this._values);
 
   static bool get isProduction => _instance._flavor == Flavor.production;
   static bool get isDevelopment => _instance._flavor == Flavor.dev;

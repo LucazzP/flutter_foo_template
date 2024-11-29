@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:foo/src/modules/logger/domain/log.usecase.dart';
+import 'package:foo/src/domain/use_cases/logger/log.usecase.dart';
 import 'package:foo/src/presentation/base/disposable.dart';
 import 'package:get_it/get_it.dart' hide Disposable;
 import 'package:mobx/mobx.dart' hide when;

@@ -5,7 +5,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:foo/src/core/firebase_options.dart';
-import 'flavor/flavor_config.model.dart';
+import 'flavor/build_config.model.dart';
 import 'flavor/flavor_values.model.dart';
 
 class RunApp {
@@ -20,7 +20,7 @@ class RunApp {
     required this.flavorValues,
     this.flavor = Flavor.production,
   }) {
-    FlavorConfig(
+    BuildConfig(
       flavor: flavor,
       color: flavor == Flavor.dev ? Colors.green : Colors.deepPurpleAccent,
       values: flavorValues,

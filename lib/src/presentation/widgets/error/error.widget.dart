@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:foo/src/core/failures.dart';
-import 'package:foo/src/localization/app_localizations.dart';
+import 'package:foo/src/presentation/localization/app_localizations.dart';
 
 class ErrorWidget extends StatelessWidget {
   final Failure failure;

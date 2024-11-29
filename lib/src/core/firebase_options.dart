@@ -1,6 +1,6 @@
 import 'package:firebase_core/firebase_core.dart' show FirebaseOptions;
 import 'package:flutter/foundation.dart' show TargetPlatform, defaultTargetPlatform, kIsWeb;
-import 'package:foo/src/core/flavor/flavor_config.model.dart';
+import 'package:foo/src/core/flavor/build_config.model.dart';
 
 /// Default [FirebaseOptions] for use with your Firebase apps.
 ///
@@ -22,7 +22,7 @@ class DefaultFirebaseOptions {
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
-        switch (FlavorConfig.flavor) {
+        switch (BuildConfig.flavor) {
           case Flavor.dev:
           case Flavor.qa:
             return androidDev;
@@ -30,7 +30,7 @@ class DefaultFirebaseOptions {
             return androidProd;
         }
       case TargetPlatform.iOS:
-        switch (FlavorConfig.flavor) {
+        switch (BuildConfig.flavor) {
           case Flavor.dev:
           case Flavor.qa:
             return iosDev;

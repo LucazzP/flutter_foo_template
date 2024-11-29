@@ -1,13 +1,13 @@
 import 'dart:io';
 
-import 'flavor/flavor_config.model.dart';
+import 'flavor/build_config.model.dart';
 import 'flavor/flavor_values.model.dart';
 
 import 'features.dart';
 
 final kTestMode = Platform.environment.containsKey('FLUTTER_TEST');
 
-FlavorValues get flavor => FlavorConfig.values();
+FlavorValues get flavor => BuildConfig.values();
 
 final kFlavorDev = FlavorValues(
   baseUrl: kLocalhost,

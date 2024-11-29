@@ -4,7 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:foo/src/core/failures.dart';
 import 'package:foo/src/core/page_data_state.dart';
 import 'package:foo/src/di/dependency_injection.dart';
-import 'package:foo/src/modules/logger/domain/log.usecase.dart';
+import 'package:foo/src/domain/use_cases/logger/log.usecase.dart';
 import 'package:foo/src/presentation/base/disposable.dart';
 import 'package:mobx/mobx.dart';
 
