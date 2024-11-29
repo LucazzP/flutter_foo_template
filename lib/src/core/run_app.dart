@@ -1,4 +1,10 @@
+import 'dart:async';
+import 'dart:isolate';
+
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
+import 'package:foo/src/core/firebase_options.dart';
 import 'flavor/flavor_config.model.dart';
 import 'flavor/flavor_values.model.dart';
 
@@ -20,6 +26,23 @@ class RunApp {
       values: flavorValues,
     );
 
-    runApp(rootWidget);
+    runZonedGuarded(() async {
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
+
+      FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterError;
+
+      Isolate.current.addErrorListener(RawReceivePort((pair) {
+        final List<dynamic> errorAndStacktrace = pair;
+        FirebaseCrashlytics.instance.recordError(
+          errorAndStacktrace.first,
+          errorAndStacktrace.last,
+        );
+      }).sendPort);
+      runApp(rootWidget);
+    }, (exception, stack) {
+      FirebaseCrashlytics.instance.recordError(exception, stack, fatal: true);
+    });
   }
 }

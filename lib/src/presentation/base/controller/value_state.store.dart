@@ -1,28 +1,34 @@
 import 'dart:async';
 
-import 'package:dartz/dartz.dart';
-import 'package:mobx/mobx.dart';
+import 'package:flutter/foundation.dart';
 import 'package:foo/src/core/failures.dart';
+import 'package:foo/src/core/page_data_state.dart';
+import 'package:foo/src/di/dependency_injection.dart';
+import 'package:foo/src/modules/logger/domain/log.usecase.dart';
+import 'package:foo/src/presentation/base/disposable.dart';
+import 'package:mobx/mobx.dart';
 
 part 'value_state.store.g.dart';
 
-/// É uma classe que representa um valor de uma variável. Ela é utilizada para
-/// adicionar estados a uma variável, sendo eles o `isLoading` e o `hasFailure`.
+/// It is a class that represents a variable value. It is used to
+/// add states to a variable, namely `isLoading` and` hasFailure`.
 ///
-/// Também guarda o erro ocorrido, caso o `hasFailure` seja `true`. `failure`
+/// It also keeps track of the error that occurred if` hasFailure` is` true`. `failure`
 ///
-/// Outra coisa que essa classe auxilia é com a execução de um [Future],
-/// Com o método `execute` dessa classe, você pode enviar uma função que será
-/// retornada por um [Future] e que será executada. Enquanto executa a função,
-/// ele automaticamente coloca em estado de `isLoading` e caso ocorra algum
-/// erro, ele seta o error no `failure` e fica em estado de `hasFailure`.
-/// Assim como, coloca automaticamente o estado de `isLoading` para `false`.
-class ValueState<State> = _ValueStateBase<State> with _$ValueState;
+/// Another thing that this class helps with is executing a [Future],
+/// With this class `execute` method, you can send a function that will be
+/// returned by a [Future] and that will be executed. While executing the function,
+/// it automatically puts in state of `isLoading` and if any
+/// error occurs, it sets the error on `failure` and is in the state of` hasFailure`.
+/// As well as automatically setting the state of `isLoading` to` false`.
+class ValueState<State> = _ValueStateBase<State> with _$ValueState<State>;
 
-abstract class _ValueStateBase<ValueType> with Store {
+abstract class _ValueStateBase<ValueType> extends Disposable with Store {
   final ValueType _initialValue;
+  Future<void> executeFuture = Future.value();
+  final void Function(ValueType oldValue, ValueType value)? onValueChanged;
 
-  _ValueStateBase(this._initialValue) : _value = _initialValue;
+  _ValueStateBase(this._initialValue, {this.onValueChanged}) : _value = _initialValue;
 
   @observable
   ValueType _value;
@@ -30,79 +36,121 @@ abstract class _ValueStateBase<ValueType> with Store {
   Failure? _failure;
   @observable
   var _isLoading = false;
+  @observable
+  bool _alreadyExecuted = false;
 
-  /// Retorna o valor guardado nesse [Store].
+  /// Returns the value stored in this [Store].
   @computed
   ValueType get value => _value;
 
-  /// Retorna o erro ocorrido, pode ser um [None], ou seja vazio, precisa sempre
-  /// verificar se o `hasFailure` está `true`.
+  /// Returns the error that occurred, it can be a [None], ie empty, you always need
+  /// check if `hasFailure` is `true`.
   @computed
   Failure? get failure => _failure;
 
-  /// Retorna `true` se está em loading, `false` caso contrário.
+  /// Returns `true` if it is in loading, `false` otherwise.
   @computed
   bool get isLoading => _isLoading;
 
-  /// Retorna `true` se a variável `failure` não está vazio.
-  /// Retorna `false` caso contrário.
+  /// Returns `true` if the variable `failure` is not empty.
+  /// Returns `false` otherwise.
   @computed
   bool get hasFailure => _failure != null;
 
-  /// Verifica se não há erro, se não está carregando e se o valor é `!= null`
+  /// Check if there's no error, if it's not loading and if the value is `!= null`
   @computed
   bool get isSuccessWithValue => isSuccess && value != null;
 
-  /// Verifica se não há erro e se não está carregando
+  /// Check if there is no error, it is not loading and already executed.
   @computed
-  bool get isSuccess => !hasFailure && !isLoading;
+  bool get isSuccess => _alreadyExecuted && !hasFailure && !isLoading;
 
-  /// Seta o valor guardado nesse [Store].
+  bool get _isEmpty => value == null || (value is List && (value as List).isEmpty);
+
+  @computed
+  PageDataState get pageDataState {
+    if (isLoading) {
+      if (_alreadyExecuted || !_isEmpty) return PageDataState.updating;
+      return PageDataState.loading;
+    }
+    if (hasFailure) {
+      if (_alreadyExecuted || !_isEmpty) return PageDataState.loadingFailed;
+      return PageDataState.updatingFailed;
+    }
+    if (_isEmpty) return PageDataState.empty;
+    return PageDataState.populated;
+  }
+
+  /// Get the value stored in this [Store].
   @action
   void setValue(ValueType value) {
+    if (value == _value) return;
+    final oldValue = _value;
     _value = value;
+    onValueChanged?.call(oldValue, value);
   }
 
-  /// Seta o erro ocorrido, podendo ser `null` caso não haja mais erro.
+  set value(ValueType value) => setValue(value);
+
+  /// Set the error occurred, can be `null` if there is no error.
   @action
-  void setFailure(Failure? error) {
+  void setFailure(Failure? error, {Exception? e, StackTrace? st}) {
     _failure = error;
+    if (error != null) {
+      getIt<LogUseCase>().call(error.toString(), exception: e, stackTrace: st);
+    }
   }
 
-  /// Seta o estado de `isLoading`.
+  /// Sets the `isLoading` state.
   @action
   void setLoading(bool isLoading) {
     _isLoading = isLoading;
   }
 
-  /// Executa uma função que retorna um [Future] com o valor que será guardado.
-  /// Enquanto executa a função, ele automaticamente coloca em estado de
-  /// `isLoading` e caso ocorra algum erro, ele seta o error no `failure` e fica
-  /// em estado de `hasFailure`.
-  /// Assim como, coloca automaticamente o estado de `isLoading` para `false`.
-  Future<void> execute(Future<Either<Failure, ValueType>> Function() exec,
-      {Duration? timeout, bool shouldSetToInitialValue = true}) async {
-    setLoading(true);
-    setFailure(null);
-    if (shouldSetToInitialValue) setValue(_initialValue);
-    try {
-      final res = await exec().timeout(timeout ?? const Duration(milliseconds: 15000));
-      res.fold(
-        (error) => setFailure(error),
-        (result) => setValue(result),
-      );
-    } on TimeoutException catch (_) {
-      setFailure(kAppTimeoutFailure);
-    } catch (e) {
-      setFailure(kAppFailure);
-    } finally {
-      setLoading(false);
-    }
+  /// Sets the `alreadyExecuted` state.
+  @action
+  void setAlreadyExecuted(bool alreadyExecuted) {
+    _alreadyExecuted = alreadyExecuted;
   }
 
-  Either<Failure, ValueType> toEither() {
-    if (failure != null) return Left(failure!);
-    return Right(value);
+  /// Executes a function that returns a [Future] with the value to be saved.
+  /// While executing the function, it automatically puts it in the state of
+  /// `isLoading` and if an error occurs, it sets the error in the `failure` and stays
+  /// in `hasFailure` state.
+  /// As well as, it automatically puts the `isLoading` state to` false`.
+  Future<ValueType> execute(
+    Future<ValueType> Function() exec, {
+    Duration? timeout,
+    bool shouldSetToInitialValue = false,
+    bool shouldSetLoading = true,
+    bool shouldSetValue = true,
+    Failure Function(Object e, StackTrace st)? failureMapper,
+  }) {
+    executeFuture = () async {
+      if (shouldSetLoading) setLoading(true);
+      setFailure(null);
+      if (shouldSetToInitialValue) setValue(_initialValue);
+      try {
+        final res = await exec().timeout(timeout ?? const Duration(seconds: 30));
+        if (shouldSetValue) setValue(res);
+      } on TimeoutException catch (_) {
+        setFailure(kAppTimeoutFailure);
+      } catch (e, st) {
+        setFailure(failureMapper?.call(e, st) ?? kAppFailure);
+      } finally {
+        if (shouldSetLoading) setLoading(false);
+      }
+      setAlreadyExecuted(true);
+    }();
+    return executeFuture.then((_) => this.value);
+  }
+
+  final List<VoidCallback> _disposers = [];
+
+  _MappedValueState<T, ValueType> map<T>(T Function(ValueType value) mapper) {
+    final mappedState = _MappedValueState<T, ValueType>(this as ValueState<ValueType>, mapper);
+    _disposers.add(mappedState.dispose);
+    return mappedState;
   }
 
   @override
@@ -117,4 +165,29 @@ abstract class _ValueStateBase<ValueType> with Store {
 
   @override
   int get hashCode => _value.hashCode ^ _isLoading.hashCode ^ _failure.hashCode;
+
+  @override
+  void dispose() {
+    while (_disposers.isNotEmpty) {
+      _disposers.removeLast().call();
+    }
+  }
+}
+
+class _MappedValueState<T, ValueType> extends ValueState<T> with Store {
+  final ValueState<ValueType> _valueState;
+  final T Function(ValueType value) _mapper;
+  ReactionDisposer? _reactionDisposer;
+
+  _MappedValueState(this._valueState, this._mapper) : super(_mapper(_valueState.value)) {
+    _reactionDisposer = reaction((_) {
+      return _valueState.value;
+    }, (value) => setValue(_mapper(value)));
+  }
+
+  @override
+  void dispose() {
+    _reactionDisposer?.call();
+    super.dispose();
+  }
 }

@@ -1,4 +1,3 @@
-import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:foo/src/presentation/base/controller/value_state.store.dart';
 import 'package:mobx/mobx.dart';
@@ -111,13 +110,13 @@ Future<void> main() async {
 
     group('execute function should', () {
       test('setLoading as true when initialize', () {
-        value.execute(() async => const Right(true));
+        value.execute(() async => true);
         expect(value.isLoading, isTrue);
       });
 
       group('setLoading as false when finish', () {
         test('without error', () async {
-          await value.execute(() async => const Right(true));
+          await value.execute(() async => true);
           expect(value.isLoading, isFalse);
         });
         test('when occours an exception', () async {
@@ -127,16 +126,16 @@ Future<void> main() async {
       });
 
       test('setValue with Right value when exec() returns Right', () async {
-        await value.execute(() async => const Right(true));
+        await value.execute(() async => true);
         expect(value.value, isTrue);
 
-        await value.execute(() async => const Right(false));
+        await value.execute(() async => false);
         expect(value.value, isFalse);
       });
 
       group('setFailure when', () {
         test('exec() returns a Left(Failure)', () async {
-          await value.execute(() async => const Left(kServerFailure));
+          await value.execute(() async => throw kServerFailure);
           expect(value.failure, kServerFailure);
         });
         test('occours an exception', () async {

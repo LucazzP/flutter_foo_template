@@ -3,11 +3,12 @@ import 'package:flutter/material.dart';
 class OverlayWidget extends StatelessWidget {
   final Widget child;
   
-  const OverlayWidget({Key? key, required this.child}) : super(key: key);
+  const OverlayWidget({super.key, required this.child});
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
+    return PopScope(
+      canPop: false,
       child: Opacity(
         opacity: .6,
         child: Container(
@@ -17,7 +18,6 @@ class OverlayWidget extends StatelessWidget {
           ),
         ),
       ),
-      onWillPop: () async => false,
     );
   }
 }

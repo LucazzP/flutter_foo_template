@@ -7,10 +7,10 @@ class ErrorWidget extends StatelessWidget {
   final VoidCallback clearErrorState;
 
   const ErrorWidget({
-    Key? key,
+    super.key,
     required this.failure,
     required this.clearErrorState,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

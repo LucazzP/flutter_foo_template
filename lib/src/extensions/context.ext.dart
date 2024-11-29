@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:foo/src/core/constants.dart';
-import 'package:foo/src/presentation/navigation_args/navigation_arg.model.dart';
+import 'package:foo/src/presentation/routes/navigation_args/navigation_arg.model.dart';
 
 extension ContextExtension on BuildContext {
   bool get isSmallDevice => MediaQuery.of(this).size.height < 670;

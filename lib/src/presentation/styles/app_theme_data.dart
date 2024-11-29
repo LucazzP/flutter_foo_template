@@ -19,12 +19,11 @@ class AppThemeData {
   static final ThemeData themeDataLight = ThemeData(
     scaffoldBackgroundColor: AppColorScheme.primaryDefault,
     primaryTextTheme: const TextTheme(
-      headline6: TextStyle(color: Colors.white),
+      titleLarge: TextStyle(color: Colors.white),
     ),
     brightness: Brightness.light,
     visualDensity: VisualDensity.adaptivePlatformDensity,
     textTheme: AppTextTheme.textTheme,
-    backgroundColor: AppColorScheme.primaryDefault,
     pageTransitionsTheme: const PageTransitionsTheme(
       builders: {
         TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
@@ -61,7 +60,7 @@ class AppThemeData {
 
   static final ThemeData themeDataDark = ThemeData(
     primaryTextTheme: const TextTheme(
-      headline6: TextStyle(color: Colors.white),
+      titleLarge: TextStyle(color: Colors.white),
     ),
     visualDensity: VisualDensity.adaptivePlatformDensity,
     brightness: Brightness.dark,

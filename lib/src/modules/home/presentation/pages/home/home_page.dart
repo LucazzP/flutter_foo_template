@@ -1,18 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:foo/src/presentation/base/pages/base.page.dart';
+import 'package:foo/src/presentation/base/pages/scaffold_base.page.dart';
 
 import 'home_controller.dart';
 
 class HomePage extends StatefulWidget {
   final String title;
-  const HomePage({Key? key, this.title = "Home"}) : super(key: key);
+  const HomePage({super.key, this.title = "Home"});
 
   @override
   _HomePageState createState() => _HomePageState();
 }
 
-class _HomePageState extends BaseState<HomePage, HomeController> {
+class _HomePageState extends ScaffoldBaseState<HomePage, HomeController> {
+  @override
+  HomeController createController() => HomeController();
+
   @override
   PreferredSizeWidget appBar(BuildContext ctx) => AppBar();
 

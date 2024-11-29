@@ -111,7 +111,7 @@ mixin _$ValueState<ValueType> on _ValueStateBase<ValueType>, Store {
   }
 
   @override
-  void setFailure(Failure? error) {
+  void setFailure(Failure? error, {Exception? e, StackTrace? st}) {
     final _$actionInfo = _$_ValueStateBaseActionController.startAction(
         name: '_ValueStateBase.setFailure');
     try {

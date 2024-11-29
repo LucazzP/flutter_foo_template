@@ -1,25 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_modular/flutter_modular.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:foo/src/presentation/styles/app_theme_data.dart';
 
-import 'presentation/widgets/flavor_banner/flavor_banner.widget.dart';
+import 'widgets/flavor_banner/flavor_banner.widget.dart';
 
 class AppWidget extends StatelessWidget {
-  const AppWidget({Key? key}) : super(key: key);
+  const AppWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.portraitUp,
-      DeviceOrientation.portraitDown,
-    ]);
     return MaterialApp.router(
       title: 'Flutter app',
-      routerDelegate: Modular.routerDelegate,
-      routeInformationParser: Modular.routeInformationParser,
       theme: ThemeData(),
       darkTheme: ThemeData.dark(),
       themeMode: ThemeMode.system,
@@ -34,9 +26,16 @@ class AppWidget extends StatelessWidget {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      supportedLocales: const [
-        Locale('pt'),
-      ],
+      supportedLocales: const [Locale('pt', 'BR')],
+      localeResolutionCallback: (locale, supportedLocales) {
+        for (final supportedLocale in supportedLocales) {
+          if (supportedLocale.languageCode == locale!.languageCode) {
+            return supportedLocale;
+          }
+        }
+
+        return supportedLocales.first;
+      },
       onGenerateTitle: (BuildContext context) => AppLocalizations.of(context)!.appTitle,
       builder: (context, child) {
         AppThemeData.setIsDark(context);
@@ -47,3 +46,5 @@ class AppWidget extends StatelessWidget {
     );
   }
 }
+
+final navigatorKey = GlobalKey<NavigatorState>();

@@ -1,33 +1,17 @@
-import 'package:dartz/dartz.dart' hide State;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' hide ErrorWidget;
-import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:flutter_modular/flutter_modular.dart';
 import 'package:foo/src/presentation/base/controller/base.store.dart';
 import 'package:foo/src/presentation/base/pages/reaction.dart';
-import 'package:foo/src/presentation/styles/app_color_scheme.dart';
-import 'package:foo/src/presentation/widgets/error/error.widget.dart';
-import 'package:foo/src/presentation/widgets/overlay/overlay.widget.dart';
 import 'package:mobx/mobx.dart' as mobx;
-import 'package:foo/src/extensions/context.ext.dart';
 
 abstract class BaseState<T extends StatefulWidget, S extends BaseStore> extends State<T> {
-  final S _scope = Modular.get<S>();
-  S get controller => _scope;
+  late final S controller;
 
-  static const errorKey = Key('ErrorWidgetKey');
-  final scaffoldKey = GlobalKey<ScaffoldState>();
-  Color get bgColor => AppColorScheme.colorScheme.background;
-  bool get shouldRemoveAppbarHeight => false;
-  bool get showLoadingOverlay => true;
-  bool get showErrorOverlay => true;
-  EdgeInsets get defaultPadding => const EdgeInsets.symmetric(vertical: 16, horizontal: 16);
+  S createController();
 
   @visibleForTesting
   @nonVirtual
   final List<mobx.ReactionDisposer> disposers = [];
-
-  Widget child(BuildContext context, BoxConstraints constraints);
 
   /// Roda a função imediatamente ao abrir a page e também quando algum dos
   /// observables for alterado.
@@ -43,29 +27,24 @@ abstract class BaseState<T extends StatefulWidget, S extends BaseStore> extends 
   /// para a função rodar automaticamente)
   ///
   /// item2: Função que irá executar caso a condição seja verdadeira.
-  final List<Tuple2<bool Function(mobx.Reaction _), void Function()>> when = [];
-
-  @visibleForTesting
-  static const basePagePaddingKey = Key('basePagePadding');
-
-  PreferredSizeWidget appBar(BuildContext ctx);
-
-  PreferredSizeWidget _buildAppBar(BuildContext ctx) {
-    final _appBar = appBar(ctx);
-    return _appBar;
-  }
-
-  bool get hasAppBar => scaffoldKey.currentState?.hasAppBar ?? false;
+  final List<(bool Function(mobx.Reaction _), void Function())> when = [];
 
   @override
   @mustCallSuper
   void initState() {
+    controller = createController();
+    initStore();
     disposers.addAll(autoRun.map((func) => mobx.autorun((_) => func())));
     disposers.addAll(reaction.map((reaction) => reaction.toReaction()));
     disposers.addAll(
-      when.map((tuple) => mobx.when(tuple.value1, tuple.value2)),
+      when.map((tuple) => mobx.when(tuple.$1, tuple.$2)),
     );
     super.initState();
+  }
+
+  @mustCallSuper
+  void initStore() {
+    controller.init();
   }
 
   @visibleForTesting
@@ -74,69 +53,11 @@ abstract class BaseState<T extends StatefulWidget, S extends BaseStore> extends 
       dispose();
     }
     controller.dispose();
-    Modular.dispose<S>();
   }
-
-  bool supportScrolling(BuildContext context) => context.isSmallDevice;
-
-  @visibleForTesting
-  void onClearError() {}
 
   @override
   void dispose() {
     disposeFunc();
     super.dispose();
-  }
-
-  Widget loader = const Center(child: CircularProgressIndicator());
-
-  @override
-  @mustCallSuper
-  Widget build(BuildContext context) {
-    final _appBar = _buildAppBar(context);
-    return Stack(
-      fit: StackFit.expand,
-      children: <Widget>[
-        Scaffold(
-          backgroundColor: bgColor,
-          appBar: _appBar,
-          key: scaffoldKey,
-          body: SafeArea(
-            child: LayoutBuilder(
-              builder: (_, BoxConstraints constrains) {
-                final layoutWithPadding = Padding(
-                  key: basePagePaddingKey,
-                  padding: defaultPadding,
-                  child: child(context, constrains),
-                );
-
-                return supportScrolling(context)
-                    ? SingleChildScrollView(child: layoutWithPadding)
-                    : layoutWithPadding;
-              },
-            ),
-          ),
-        ),
-        if (showLoadingOverlay)
-          Observer(builder: (_) {
-            return (controller.isLoading && !controller.hasFailure)
-                ? OverlayWidget(child: loader)
-                : const SizedBox.shrink();
-          }),
-        if (showErrorOverlay)
-          Observer(builder: (_) {
-            return controller.hasFailure
-                ? ErrorWidget(
-                    key: errorKey,
-                    failure: controller.failure!,
-                    clearErrorState: () {
-                      controller.clearErrors();
-                      onClearError();
-                    },
-                  )
-                : const SizedBox.shrink();
-          })
-      ],
-    );
   }
 }

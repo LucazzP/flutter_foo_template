@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
-import 'package:foo/src/presentation/navigation_args/args.dart';
+import 'package:foo/src/presentation/routes/navigation_args/args.dart';
 import 'package:mocktail/mocktail.dart';
 
 class NavigatorObserverMock extends Mock implements NavigatorObserver {
@@ -72,26 +72,16 @@ class NavigatorMock extends Navigator {
 
   const NavigatorMock(
     this.state, {
-    Key? key,
-    List<Page<dynamic>> pages = const <Page<dynamic>>[],
-    PopPageCallback? onPopPage,
-    String? initialRoute,
-    RouteListFactory onGenerateInitialRoutes = Navigator.defaultGenerateInitialRoutes,
-    RouteFactory? onGenerateRoute,
-    RouteFactory? onUnknownRoute,
-    TransitionDelegate<dynamic> transitionDelegate = const DefaultTransitionDelegate<dynamic>(),
-    List<NavigatorObserver> observers = const <NavigatorObserver>[],
-  }) : super(
-          key: key,
-          pages: pages,
-          onPopPage: onPopPage,
-          initialRoute: initialRoute,
-          onGenerateInitialRoutes: onGenerateInitialRoutes,
-          onGenerateRoute: onGenerateRoute,
-          onUnknownRoute: onUnknownRoute,
-          transitionDelegate: transitionDelegate,
-          observers: observers,
-        );
+    super.key,
+    super.pages,
+    super.onPopPage,
+    super.initialRoute,
+    super.onGenerateInitialRoutes,
+    super.onGenerateRoute,
+    super.onUnknownRoute,
+    super.transitionDelegate,
+    super.observers,
+  });
 
   @override
   NavigatorState createState() {
@@ -155,7 +145,8 @@ class NavigatorStateMock extends NavigatorState {
 
   @override
   Future<T?> pushNamed<T extends Object?>(String routeName, {Object? arguments}) async {
-    pushesNamed.add(NavigatorEvent.pushNamed(routeName, arguments: arguments as NavigationArg<dynamic>?));
+    pushesNamed
+        .add(NavigatorEvent.pushNamed(routeName, arguments: arguments as NavigationArg<dynamic>?));
     return null;
   }
 

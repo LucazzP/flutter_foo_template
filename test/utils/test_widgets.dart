@@ -22,16 +22,14 @@ extension WidgetTesterExtension on WidgetTester {
 
     if (asSmallDevice != null) {
       if (asSmallDevice) {
-        binding.window.physicalSizeTestValue = const Size(620 - 50, 650);
-        binding.window.devicePixelRatioTestValue = 1.0;
-        addTearDown(binding.window.clearPhysicalSizeTestValue);
-        addTearDown(binding.window.clearDevicePixelRatioTestValue);
+        view.physicalSize = const Size(620 - 50, 650);
       } else {
-        binding.window.physicalSizeTestValue = const Size(620 + 20, 750);
-        binding.window.devicePixelRatioTestValue = 1.0;
-        addTearDown(binding.window.clearPhysicalSizeTestValue);
-        addTearDown(binding.window.clearDevicePixelRatioTestValue);
+        view.physicalSize = const Size(620 + 20, 750);
       }
+
+      view.devicePixelRatio = 1.0;
+      addTearDown(view.resetPhysicalSize);
+      addTearDown(view.resetDevicePixelRatio);
     }
 
     AppThemeData.setIsDark(BuildContextMock(), isDark: isDark);

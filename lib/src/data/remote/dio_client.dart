@@ -9,9 +9,9 @@ class DioClient {
   final AuthInterceptor _authInterceptor;
 
   DioClient(this._dio, this._authInterceptor) {
-    _dio.options.connectTimeout = 10000;
-    _dio.options.sendTimeout = 10000;
-    _dio.options.receiveTimeout = 10000;
+    _dio.options.connectTimeout = Duration(seconds: 10);
+    _dio.options.sendTimeout = Duration(seconds: 10);
+    _dio.options.receiveTimeout = Duration(seconds: 10);
 
     _dio.interceptors.add(LogInterceptor());
     _dio.interceptors.add(_authInterceptor);

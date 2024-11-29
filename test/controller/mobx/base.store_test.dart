@@ -1,12 +1,10 @@
-import 'package:dartz/dartz.dart' hide Bind;
-import 'package:flutter_modular/flutter_modular.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:foo/src/modules/logger/domain/log.usecase.dart';
-import 'package:foo/src/modules/logger/log.module.dart';
+import 'package:foo/src/presentation/base/disposable.dart';
+import 'package:get_it/get_it.dart' hide Disposable;
 import 'package:mobx/mobx.dart' hide when;
 import 'package:foo/src/core/failures.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:modular_test/modular_test.dart';
 import '../../mocks/controller.mocks.dart';
 import '../../utils/expects.dart';
 
@@ -18,16 +16,14 @@ Future<void> main() async {
   late ControllerTest store;
 
   setUpAll(() {
-    initModule(LogModule(), replaceBinds: [
-      Bind.instance<LogUseCase>(logUseCaseMock, export: true),
-    ]);
+    GetIt.I.registerSingleton<LogUseCase>(logUseCaseMock);
   });
 
   setUp(() {
     mainContext.config = mainContext.config.clone(isSpyEnabled: true);
     mainContext.spy(spyEvents.add);
     store = ControllerTest();
-    when(() => logUseCaseMock.call(any())).thenAnswer((_) async => const Right(null));
+    when(() => logUseCaseMock.call(any())).thenAnswer((_) async {});
   });
 
   tearDown(() {
@@ -114,46 +110,6 @@ Future<void> main() async {
           getObject: () => store.hasFailure,
           checkEvent: (event) => event.type == kComputed,
         );
-      });
-    });
-
-    group('execute function', () {
-      test('should execute the first state that founds with the type provided', () async {
-        expect(store.state.value, isFalse);
-        expect(store.otherState.value, isFalse);
-
-        await store.execute(() async => const Right(true));
-
-        expect(store.state.value, isTrue);
-        expect(store.otherState.value, isFalse);
-
-        const newString = 'New String';
-        await store.execute(() async => const Right(newString));
-
-        expect(store.otherState2.value, equals(newString));
-        expect(store.state.value, isTrue);
-        expect(store.otherState.value, isFalse);
-      });
-
-      group('should log an error when', () {
-        test('not found a state', () async {
-          await store.execute(() async => const Right(123));
-
-          verify(() => logUseCaseMock('Não foi possível encontrar o estado $int registrado '
-              'na lista do `getStates` do `BaseStore`, verifique se está '
-              'registrado corretamente')).called(1);
-        });
-
-        test('occour an error on state.execute()', () async {
-          store = ControllerTest(true);
-
-          final exception = Exception('Error message');
-          when(() => store.mockedState.execute(any())).thenThrow(exception);
-
-          await store.execute<double>(() async => const Right(1.5));
-
-          verify(() => logUseCaseMock(exception.toString())).called(1);
-        });
       });
     });
 

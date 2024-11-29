@@ -1,39 +1,103 @@
-import 'package:dartz/dartz.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter_modular/flutter_modular.dart';
-import 'package:foo/src/modules/logger/domain/log.usecase.dart';
-import 'package:foo/src/presentation/base/controller/value_state.store.dart';
-import 'package:mobx/mobx.dart';
 import 'package:foo/src/core/failures.dart';
+import 'package:foo/src/core/page_data_state.dart';
+import 'package:foo/src/presentation/base/controller/form_store.dart';
+import 'package:foo/src/presentation/base/controller/value_state.store.dart';
+import 'package:foo/src/presentation/base/disposable.dart';
+import 'package:mobx/mobx.dart';
 
 part 'base.store.g.dart';
 
-/// Utilizado para ser a base de seus controllers/stores, nele você encontra
-/// os métodos e atributos padrão para todos os controllers e stores.
 abstract class BaseStore = _BaseStoreBase with _$BaseStore;
 
-abstract class _BaseStoreBase extends Disposable with Store {
-  /// Utilizado internamente dentro do [BaseStore] para acessar todos os estados
-  /// disponíveis na classe implementadora.
+abstract class _BaseStoreBase with Store, Disposable {
+  ReactionDisposer? _loadingDisposer;
+
+  @mustCallSuper
+  void init() {
+    _loadingDisposer = reaction((_) {
+      for (final state in states) {
+        if (state.isLoading) {
+          return true;
+        }
+      }
+      return false;
+    }, (isLoading) {
+      _setIsLoading(isLoading);
+    }, delay: 100);
+
+    for (final store in childStores) {
+      store.init();
+    }
+  }
+
+  /// Used internally within the [BaseStore] to access all available states
+  /// in the implementing class.
   ///
-  /// IMPORTANTE: Sempre que for adicionar um estado dentro de um controller,
-  /// deve-se adicionar o mesmo na lista do [getStates] também através de seu
-  /// @override.
+  /// IMPORTANT: Whenever adding a state within a controller,
+  /// it must also be added to the [getStates] list using @override.
   @protected
   Iterable<ValueState> get getStates;
 
-  /// Mesma finalidade do [getStates], a diferença é que esse é um `computed` que
-  /// notificará para o os outros `computed` que estão escutando ele.
+  @protected
+  Iterable<BaseStore> get childStores => [];
+
+  @protected
+  List<FormStore> get getForms => [];
+
+  Future<bool> validateForms() async {
+    final forms = getForms;
+
+    var hasError = false;
+    for (var i = 0; i < forms.length; i++) {
+      final item = forms.elementAt(i);
+      final validated = await item.validate();
+      if (!validated) {
+        hasError = true;
+      }
+    }
+    return !hasError;
+  }
+
+  Computed<PageDataState>? _getPageDataStateComputed;
+
+  @protected
+  PageDataState getPageDataState(bool Function() hasData) {
+    _getPageDataStateComputed ??= Computed<PageDataState>(
+      () {
+        if (hasData()) {
+          if (isLoading) {
+            return PageDataState.updating;
+          } else if (hasFailure) {
+            return PageDataState.updatingFailed;
+          }
+          return PageDataState.populated;
+        }
+        if (isLoading) {
+          return PageDataState.loading;
+        }
+        if (hasFailure) {
+          return PageDataState.loadingFailed;
+        }
+        return PageDataState.empty;
+      },
+      name: '_BaseStoreBase.getPageDataState',
+    );
+    return _getPageDataStateComputed!.value;
+  }
+
+  /// Same purpose as [getStates], the difference is that this is a `computed` property
+  /// that will notify other `computed` properties that are listening to it.
   ///
-  /// É necessário esses dois atributos e não apenas um porque o mobx me obriga
-  /// a implementar todos os atributos `computed`, sendo assim, não consigo
-  /// deixar o [getStates] como `computed` porque ele deve ser implementado
-  /// pela classe implementadora, e não pelo [BaseStore].
+  /// It is necessary to have these two attributes and not just one because MobX
+  /// requires me to implement all `computed` properties. Therefore, I cannot make
+  /// [getStates] a `computed` property because it must be implemented by the
+  /// implementing class, not by the [BaseStore].
   @computed
   @visibleForTesting
-  Iterable<ValueState> get states => getStates;
+  Iterable<ValueState> get states => [...getStates];
 
-  /// Resgata a primeira [Failure] encontrada dentro de todos os estados.
+  /// Retrieves the first [Failure] found within all states.
   @computed
   Failure? get failure {
     try {
@@ -47,49 +111,21 @@ abstract class _BaseStoreBase extends Disposable with Store {
     }
   }
 
-  /// Retorna `true` se pelo menos um dos estados estiver em loading.
-  @computed
-  bool get isLoading => states.any((element) => element.isLoading);
+  /// Returns `true` if at least one of the states is loading.
+  @observable
+  bool _isLoading = false;
 
-  /// Retorna `true` se pelo menos um dos estados possuir alguma [Failure].
+  @action
+  void _setIsLoading(bool value) => _isLoading = value;
+
+  @computed
+  bool get isLoading => _isLoading;
+
+  /// Returns `true` if at least one of the states has any [Failure].
   @computed
   bool get hasFailure => states.any((element) => element.hasFailure);
 
-  /// Executa o método `execute` do estado encontrado dentro do [getStates].
-  /// Se não encontrar nenhum estado, é realizado um log e não ocorre mais nada.
-  ///
-  /// IMPORTANTE: Se existirem dois estados com o mesmo tipo, **o primeiro**
-  /// encontrado será o que será executado.
-  ///
-  /// Copy from ValueStore.execute:
-  /// Executa uma função que retorna um [Future] com o valor que será guardado.
-  /// Enquanto executa a função, ele automaticamente coloca em estado de
-  /// `isLoading` e caso ocorra algum erro, ele seta o error no `failure` e fica
-  /// em estado de `hasFailure`.
-  /// Assim como, coloca automaticamente o estado de `isLoading` para `false`.
-  @protected
-  @nonVirtual
-  @visibleForTesting
-  Future<void> execute<T>(Future<Either<Failure, T>> Function() exec) async {
-    try {
-      ValueState<T> state =
-          states.firstWhere((element) => element is ValueState<T>) as ValueState<T>;
-      return state.execute(exec);
-    } catch (e) {
-      String error;
-      if (e.toString() == 'Bad state: No element') {
-        error = 'Não foi possível encontrar o estado $T registrado '
-            'na lista do `getStates` do `BaseStore`, verifique se está registrado '
-            'corretamente';
-      } else {
-        error = e.toString();
-      }
-      await Modular.get<LogUseCase>().call(error);
-    }
-  }
-
-  /// Busca todos os estados que possuem alguma [Failure] e seta a mesma para
-  /// none().
+  /// Retrieves all states that have any [Failure] and sets it to none().
   @nonVirtual
   void clearErrors() {
     states.where((state) => state.hasFailure).forEach((state) => state.setFailure(null));
@@ -97,5 +133,22 @@ abstract class _BaseStoreBase extends Disposable with Store {
 
   @override
   @mustCallSuper
-  void dispose() {}
+  void dispose() {
+    _loadingDisposer?.call();
+
+    // Future necessary to finish the animation transition
+    Future.delayed(const Duration(milliseconds: 300)).then((value) {
+      for (var form in getForms) {
+        form.dispose();
+      }
+    });
+
+    for (var store in childStores) {
+      store.dispose();
+    }
+
+    for (var state in states) {
+      state.dispose();
+    }
+  }
 }

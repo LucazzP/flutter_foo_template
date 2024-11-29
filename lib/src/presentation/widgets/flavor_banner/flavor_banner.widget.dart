@@ -4,7 +4,7 @@ import 'package:foo/src/core/flavor/flavor_config.model.dart';
 class FlavorBannerWidget extends StatelessWidget {
   final Widget child;
 
-  const FlavorBannerWidget({Key? key, required this.child}) : super(key: key);
+  const FlavorBannerWidget({super.key, required this.child});
 
   @override
   Widget build(BuildContext context) {

@@ -1,14 +1,18 @@
 part of 'base.page_test.dart';
 
 class _SampleModifiedBasePage extends StatefulWidget {
-  const _SampleModifiedBasePage({Key? key}) : super(key: key);
+  final ControllerTest controller;
+  const _SampleModifiedBasePage({super.key, required this.controller});
 
   @override
   _SampleModifiedBasePageState createState() => _SampleModifiedBasePageState();
 }
 
 class _SampleModifiedBasePageState
-    extends BaseState<_SampleModifiedBasePage, ControllerTest> {
+    extends ScaffoldBaseState<_SampleModifiedBasePage, ControllerTest> {
+  @override
+  ControllerTest createController() => widget.controller;
+
   int callsAutoRun = 0;
   int callsReaction = 0;
   int callsWhenRun = 0;
@@ -46,13 +50,16 @@ class _SampleModifiedBasePageState
 
   @override
   get when => [
-        Tuple2((_) {
-          controller.isLoading;
-          return true;
-        }, () {
-          callsWhenRun++;
-          controller.isLoading;
-        })
+        (
+          (_) {
+            controller.isLoading;
+            return true;
+          },
+          () {
+            callsWhenRun++;
+            controller.isLoading;
+          }
+        )
       ];
 
   @override

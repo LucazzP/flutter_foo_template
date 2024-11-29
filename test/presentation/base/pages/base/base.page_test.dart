@@ -1,16 +1,13 @@
-import 'package:dartz/dartz.dart' hide Bind;
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:flutter_modular/flutter_modular.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:foo/src/core/failures.dart';
 import 'package:foo/src/extensions/context.ext.dart';
-import 'package:foo/src/presentation/base/pages/base.page.dart';
 import 'package:foo/src/presentation/base/pages/reaction.dart' as react;
+import 'package:foo/src/presentation/base/pages/scaffold_base.page.dart';
 import 'package:foo/src/presentation/styles/app_color_scheme.dart';
 import 'package:mobx/mobx.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:modular_test/modular_test.dart';
 
 import '../../../../mocks/controller.mocks.dart';
 import '../../../../utils/test_widgets.dart';
@@ -44,26 +41,23 @@ Future<void> main() async {
   setUp(() {
     _buildTimes = 0;
     _supportScrollView = false;
-    initModule(SampleBaseModule(), replaceBinds: [
-      Bind.instance<ControllerTest>(_controller),
-    ]);
   });
 
   Future<_SampleBasePageState> buildPage(WidgetTester tester, {bool? asSmallDevice}) async {
     final key = GlobalKey<_SampleBasePageState>();
-    final page = _SampleBasePage(key: key);
+    final page = _SampleBasePage(key: key, controller: _controller);
     context = await tester.pumpPage(
       page,
       asSmallDevice: asSmallDevice,
     );
-    expectedBgColor = AppColorScheme.colorScheme.background;
+    expectedBgColor = AppColorScheme.colorScheme.surface;
     return key.currentState!;
   }
 
   Future<_SampleModifiedBasePageState> buildModifiedPage(WidgetTester tester) async {
     expectedBgColor = const Color(0x12345678);
     final key = GlobalKey<_SampleModifiedBasePageState>();
-    final page = _SampleModifiedBasePage(key: key);
+    final page = _SampleModifiedBasePage(key: key, controller: _controller);
     context = await tester.pumpPage(page);
     return key.currentState!;
   }
@@ -83,14 +77,14 @@ Future<void> main() async {
           final page = await buildPage(tester, asSmallDevice: true);
 
           expect(page.defaultPadding, equals(expectedPadding));
-          final padding = tester.firstWidget<Padding>(find.byKey(BaseState.basePagePaddingKey));
+          final padding = tester.firstWidget<Padding>(find.byKey(ScaffoldBaseState.basePagePaddingKey));
           expect(padding.padding, equals(expectedPadding));
         });
         testWidgets('with support scrolling false', (tester) async {
           final page = await buildPage(tester, asSmallDevice: false);
 
           expect(page.defaultPadding, equals(expectedPadding));
-          final padding = tester.firstWidget<Padding>(find.byKey(BaseState.basePagePaddingKey));
+          final padding = tester.firstWidget<Padding>(find.byKey(ScaffoldBaseState.basePagePaddingKey));
           expect(padding.padding, equals(expectedPadding));
         });
       });
@@ -159,7 +153,7 @@ Future<void> main() async {
       testWidgets('padding should be the same of defaultPadding param', (tester) async {
         final page = await buildModifiedPage(tester);
 
-        final padding = tester.firstWidget<Padding>(find.byKey(BaseState.basePagePaddingKey));
+        final padding = tester.firstWidget<Padding>(find.byKey(ScaffoldBaseState.basePagePaddingKey));
         expect(padding.padding, equals(page.defaultPadding));
       });
 
@@ -190,17 +184,17 @@ Future<void> main() async {
         final page = await buildModifiedPage(tester);
 
         expect(find.byWidget(page.loader), findsNothing);
-        expect(find.byKey(BaseState.errorKey), findsNothing);
+        expect(find.byKey(ScaffoldBaseState.errorKey), findsNothing);
 
         page.controller.state.setLoading(true);
         await tester.pump();
         expect(find.byWidget(page.loader), findsOneWidget);
-        expect(find.byKey(BaseState.errorKey), findsNothing);
+        expect(find.byKey(ScaffoldBaseState.errorKey), findsNothing);
 
         page.controller.state.setFailure(kServerFailure);
         await tester.pump();
         expect(find.byWidget(page.loader), findsNothing);
-        expect(find.byKey(BaseState.errorKey), findsOneWidget);
+        expect(find.byKey(ScaffoldBaseState.errorKey), findsOneWidget);
         expect(page.callsOnClearError, 0);
 
         await tester.tap(find.byType(TextButton));
@@ -313,7 +307,7 @@ Future<void> main() async {
 class _SampleWidget extends StatelessWidget {
   final BoxConstraints constrains;
 
-  const _SampleWidget({Key? key, required this.constrains}) : super(key: key);
+  const _SampleWidget({super.key, required this.constrains});
 
   @override
   Widget build(BuildContext context) {
