@@ -27,6 +27,7 @@ class RunApp {
     );
 
     runZonedGuarded(() async {
+      WidgetsFlutterBinding.ensureInitialized();
       await Firebase.initializeApp(
         options: DefaultFirebaseOptions.currentPlatform,
       );
@@ -40,6 +41,7 @@ class RunApp {
           errorAndStacktrace.last,
         );
       }).sendPort);
+
       runApp(rootWidget);
     }, (exception, stack) {
       FirebaseCrashlytics.instance.recordError(exception, stack, fatal: true);
