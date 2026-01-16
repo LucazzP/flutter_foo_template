@@ -6,29 +6,9 @@ part of 'value_state.store.dart';
 // StoreGenerator
 // **************************************************************************
 
-// ignore_for_file: non_constant_identifier_names, unnecessary_brace_in_string_interps, unnecessary_lambdas, prefer_expression_function_bodies, lines_longer_than_80_chars, avoid_as, avoid_annotating_with_dynamic
+// ignore_for_file: non_constant_identifier_names, unnecessary_brace_in_string_interps, unnecessary_lambdas, prefer_expression_function_bodies, lines_longer_than_80_chars, avoid_as, avoid_annotating_with_dynamic, no_leading_underscores_for_local_identifiers
 
 mixin _$ValueState<ValueType> on _ValueStateBase<ValueType>, Store {
-  Computed<ValueType>? _$valueComputed;
-
-  @override
-  ValueType get value => (_$valueComputed ??=
-          Computed<ValueType>(() => super.value, name: '_ValueStateBase.value'))
-      .value;
-  Computed<Failure?>? _$failureComputed;
-
-  @override
-  Failure? get failure =>
-      (_$failureComputed ??= Computed<Failure?>(() => super.failure,
-              name: '_ValueStateBase.failure'))
-          .value;
-  Computed<bool>? _$isLoadingComputed;
-
-  @override
-  bool get isLoading =>
-      (_$isLoadingComputed ??= Computed<bool>(() => super.isLoading,
-              name: '_ValueStateBase.isLoading'))
-          .value;
   Computed<bool>? _$hasFailureComputed;
 
   @override
@@ -50,8 +30,16 @@ mixin _$ValueState<ValueType> on _ValueStateBase<ValueType>, Store {
       (_$isSuccessComputed ??= Computed<bool>(() => super.isSuccess,
               name: '_ValueStateBase.isSuccess'))
           .value;
+  Computed<PageDataState>? _$pageDataStateComputed;
 
-  final _$_valueAtom = Atom(name: '_ValueStateBase._value');
+  @override
+  PageDataState get pageDataState => (_$pageDataStateComputed ??=
+          Computed<PageDataState>(() => super.pageDataState,
+              name: '_ValueStateBase.pageDataState'))
+      .value;
+
+  late final _$_valueAtom =
+      Atom(name: '_ValueStateBase._value', context: context);
 
   @override
   ValueType get _value {
@@ -66,7 +54,8 @@ mixin _$ValueState<ValueType> on _ValueStateBase<ValueType>, Store {
     });
   }
 
-  final _$_failureAtom = Atom(name: '_ValueStateBase._failure');
+  late final _$_failureAtom =
+      Atom(name: '_ValueStateBase._failure', context: context);
 
   @override
   Failure? get _failure {
@@ -81,7 +70,8 @@ mixin _$ValueState<ValueType> on _ValueStateBase<ValueType>, Store {
     });
   }
 
-  final _$_isLoadingAtom = Atom(name: '_ValueStateBase._isLoading');
+  late final _$_isLoadingAtom =
+      Atom(name: '_ValueStateBase._isLoading', context: context);
 
   @override
   bool get _isLoading {
@@ -96,8 +86,24 @@ mixin _$ValueState<ValueType> on _ValueStateBase<ValueType>, Store {
     });
   }
 
-  final _$_ValueStateBaseActionController =
-      ActionController(name: '_ValueStateBase');
+  late final _$_alreadyExecutedAtom =
+      Atom(name: '_ValueStateBase._alreadyExecuted', context: context);
+
+  @override
+  bool get _alreadyExecuted {
+    _$_alreadyExecutedAtom.reportRead();
+    return super._alreadyExecuted;
+  }
+
+  @override
+  set _alreadyExecuted(bool value) {
+    _$_alreadyExecutedAtom.reportWrite(value, super._alreadyExecuted, () {
+      super._alreadyExecuted = value;
+    });
+  }
+
+  late final _$_ValueStateBaseActionController =
+      ActionController(name: '_ValueStateBase', context: context);
 
   @override
   void setValue(ValueType value) {
@@ -115,7 +121,7 @@ mixin _$ValueState<ValueType> on _ValueStateBase<ValueType>, Store {
     final _$actionInfo = _$_ValueStateBaseActionController.startAction(
         name: '_ValueStateBase.setFailure');
     try {
-      return super.setFailure(error);
+      return super.setFailure(error, e: e, st: st);
     } finally {
       _$_ValueStateBaseActionController.endAction(_$actionInfo);
     }
@@ -133,14 +139,23 @@ mixin _$ValueState<ValueType> on _ValueStateBase<ValueType>, Store {
   }
 
   @override
+  void setAlreadyExecuted(bool alreadyExecuted) {
+    final _$actionInfo = _$_ValueStateBaseActionController.startAction(
+        name: '_ValueStateBase.setAlreadyExecuted');
+    try {
+      return super.setAlreadyExecuted(alreadyExecuted);
+    } finally {
+      _$_ValueStateBaseActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
   String toString() {
     return '''
-value: ${value},
-failure: ${failure},
-isLoading: ${isLoading},
 hasFailure: ${hasFailure},
 isSuccessWithValue: ${isSuccessWithValue},
-isSuccess: ${isSuccess}
+isSuccess: ${isSuccess},
+pageDataState: ${pageDataState}
     ''';
   }
 }
