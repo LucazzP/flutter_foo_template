@@ -1,3 +1,4 @@
 arb-dir: lib/src/presentation/localization
 template-arb-file: app_pt.arb
 output-localization-file: app_localizations.dart
+output-dir: lib/src/presentation/localization/generated
