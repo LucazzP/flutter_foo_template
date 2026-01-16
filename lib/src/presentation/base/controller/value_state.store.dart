@@ -40,16 +40,13 @@ abstract class _ValueStateBase<ValueType> extends Disposable with Store {
   bool _alreadyExecuted = false;
 
   /// Returns the value stored in this [Store].
-  @computed
   ValueType get value => _value;
 
   /// Returns the error that occurred, it can be a [None], ie empty, you always need
   /// check if `hasFailure` is `true`.
-  @computed
   Failure? get failure => _failure;
 
   /// Returns `true` if it is in loading, `false` otherwise.
-  @computed
   bool get isLoading => _isLoading;
 
   /// Returns `true` if the variable `failure` is not empty.
@@ -95,6 +92,7 @@ abstract class _ValueStateBase<ValueType> extends Disposable with Store {
   /// Set the error occurred, can be `null` if there is no error.
   @action
   void setFailure(Failure? error, {Exception? e, StackTrace? st}) {
+    if (error == _failure) return;
     _failure = error;
     if (error != null) {
       getIt<LogUseCase>().call(error.toString(), exception: e, stackTrace: st);
@@ -125,22 +123,41 @@ abstract class _ValueStateBase<ValueType> extends Disposable with Store {
     bool shouldSetLoading = true,
     bool shouldSetValue = true,
     Failure Function(Object e, StackTrace st)? failureMapper,
+    List<ValueState> chainStates = const [],
+    int maxRetries = 1,
   }) {
+    final states = <ValueState>[this as ValueState, ...chainStates];
     executeFuture = () async {
-      if (shouldSetLoading) setLoading(true);
-      setFailure(null);
-      if (shouldSetToInitialValue) setValue(_initialValue);
+      for (final state in states) {
+        if (shouldSetLoading) state.setLoading(true);
+        state.setFailure(null);
+        if (shouldSetToInitialValue) state.setValue(_initialValue);
+      }
       try {
         final res = await exec().timeout(timeout ?? const Duration(seconds: 30));
-        if (shouldSetValue) setValue(res);
+        if (shouldSetValue) {
+          for (final state in states) {
+            state.setValue(res);
+          }
+        }
       } on TimeoutException catch (_) {
-        setFailure(kAppTimeoutFailure);
+        for (final state in states) {
+          state.setFailure(kAppTimeoutFailure);
+        }
       } catch (e, st) {
-        setFailure(failureMapper?.call(e, st) ?? kAppFailure);
+        for (final state in states) {
+          state.setFailure(failureMapper?.call(e, st) ?? kAppFailure);
+        }
       } finally {
-        if (shouldSetLoading) setLoading(false);
+        if (shouldSetLoading) {
+          for (final state in states) {
+            state.setLoading(false);
+          }
+        }
       }
-      setAlreadyExecuted(true);
+      for (final state in states) {
+        state.setAlreadyExecuted(true);
+      }
     }();
     return executeFuture.then((_) => this.value);
   }
@@ -167,7 +184,7 @@ abstract class _ValueStateBase<ValueType> extends Disposable with Store {
   int get hashCode => _value.hashCode ^ _isLoading.hashCode ^ _failure.hashCode;
 
   @override
-  void dispose() {
+  Future<void> dispose() async {
     while (_disposers.isNotEmpty) {
       _disposers.removeLast().call();
     }
@@ -180,14 +197,14 @@ class _MappedValueState<T, ValueType> extends ValueState<T> with Store {
   ReactionDisposer? _reactionDisposer;
 
   _MappedValueState(this._valueState, this._mapper) : super(_mapper(_valueState.value)) {
-    _reactionDisposer = reaction((_) {
+    _reactionDisposer = reaction(fireImmediately: true, (_) {
       return _valueState.value;
     }, (value) => setValue(_mapper(value)));
   }
 
   @override
-  void dispose() {
+  Future<void> dispose() async {
     _reactionDisposer?.call();
-    super.dispose();
+    return super.dispose();
   }
 }

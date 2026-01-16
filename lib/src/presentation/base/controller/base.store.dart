@@ -11,11 +11,11 @@ part 'base.store.g.dart';
 abstract class BaseStore = _BaseStoreBase with _$BaseStore;
 
 abstract class _BaseStoreBase with Store, Disposable {
-  ReactionDisposer? _loadingDisposer;
+  final List<ReactionDisposer> disposers = [];
 
   @mustCallSuper
   void init() {
-    _loadingDisposer = reaction((_) {
+    disposers.add(reaction((_) {
       for (final state in states) {
         if (state.isLoading) {
           return true;
@@ -24,7 +24,7 @@ abstract class _BaseStoreBase with Store, Disposable {
       return false;
     }, (isLoading) {
       _setIsLoading(isLoading);
-    }, delay: 100);
+    }, delay: 100));
 
     for (final store in childStores) {
       store.init();
@@ -134,7 +134,10 @@ abstract class _BaseStoreBase with Store, Disposable {
   @override
   @mustCallSuper
   void dispose() {
-    _loadingDisposer?.call();
+    for (final disposer in disposers) {
+      disposer();
+    }
+    disposers.clear();
 
     // Future necessary to finish the animation transition
     Future.delayed(const Duration(milliseconds: 300)).then((value) {

@@ -7,7 +7,7 @@ part 'value.store.g.dart';
 /// previamente o `@observable` e o `@action` com o `setValue`.
 class ValueStore<ValueType> = _ValueStoreBase<ValueType> with _$ValueStore;
 
-abstract class _ValueStoreBase<ValueType> with Store {
+abstract class _ValueStoreBase<ValueType> with Store implements Sink<ValueType> {
   _ValueStoreBase(ValueType initialValue) : _value = initialValue;
 
   @observable
@@ -24,11 +24,18 @@ abstract class _ValueStoreBase<ValueType> with Store {
   }
 
   @override
+  void add(ValueType data) => setValue(data);
+
+  @override
+  void close() {}
+
+  Sink<ValueType> get sink => this;
+
+  @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
 
-    return other is ValueStore<ValueType> &&
-        other._value == _value;
+    return other is ValueStore<ValueType> && other._value == _value;
   }
 
   @override
