@@ -12,16 +12,19 @@ FlavorValues get flavor => BuildConfig.values();
 final kFlavorDev = FlavorValues(
   baseUrl: kLocalhost,
   features: () => Features.dev,
+  isFirebaseEnabled: false, // TODO: Enable as needed
 );
 
 final kFlavorQa = FlavorValues(
   baseUrl: kLocalhost,
   features: () => Features.qa,
+  isFirebaseEnabled: false, // TODO: Enable as needed
 );
 
 final kFlavorProd = FlavorValues(
   baseUrl: kLocalhost,
   features: () => Features.prod,
+  isFirebaseEnabled: false, // TODO: Enable as needed
 );
 
 const kLocalhost = 'http://localhost';

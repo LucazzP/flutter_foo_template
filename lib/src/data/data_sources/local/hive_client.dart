@@ -12,7 +12,7 @@ class HiveClient {
     _init();
   }
 
-  _init() async {
+  Future<void> _init() async {
     if (Platform.isAndroid || Platform.isIOS) {
       Hive.init((await getApplicationDocumentsDirectory()).path);
     }

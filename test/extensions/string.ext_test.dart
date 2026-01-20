@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:foo/src/core/extensions/string.ext.dart';
 
-main() {
+void main() {
   group('Capitalize string tests', () {
     test('Should capitalize the first letter of a simple string', () {
       const testString = 'lucas';

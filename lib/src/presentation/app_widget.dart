@@ -38,7 +38,7 @@ class AppWidget extends StatelessWidget {
 
         return supportedLocales.first;
       },
-      onGenerateTitle: (BuildContext context) => AppLocalizations.of(context)!.appTitle,
+      onGenerateTitle: (BuildContext context) => AppLocalizations.of(context).appTitle,
       builder: (context, child) {
         AppThemeData.setIsDark(context);
         return FlavorBannerWidget(

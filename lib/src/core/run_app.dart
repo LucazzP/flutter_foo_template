@@ -28,23 +28,25 @@ class RunApp {
 
     runZonedGuarded(() async {
       WidgetsFlutterBinding.ensureInitialized();
-      await Firebase.initializeApp(
-        options: DefaultFirebaseOptions.currentPlatform,
-      );
+      final options = DefaultFirebaseOptions.currentPlatform;
 
-      FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterError;
-
-      Isolate.current.addErrorListener(RawReceivePort((pair) {
-        final List<dynamic> errorAndStacktrace = pair;
-        FirebaseCrashlytics.instance.recordError(
-          errorAndStacktrace.first,
-          errorAndStacktrace.last,
-        );
-      }).sendPort);
+      if (flavorValues.isFirebaseEnabled) {
+        await Firebase.initializeApp(options: options);
+        FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterError;
+        Isolate.current.addErrorListener(RawReceivePort((pair) {
+          final List<dynamic> errorAndStacktrace = pair;
+          FirebaseCrashlytics.instance.recordError(
+            errorAndStacktrace.first,
+            errorAndStacktrace.last,
+          );
+        }).sendPort);
+      }
 
       runApp(rootWidget);
     }, (exception, stack) {
-      FirebaseCrashlytics.instance.recordError(exception, stack, fatal: true);
+      if (flavorValues.isFirebaseEnabled) {
+        FirebaseCrashlytics.instance.recordError(exception, stack, fatal: true);
+      }
     });
   }
 }

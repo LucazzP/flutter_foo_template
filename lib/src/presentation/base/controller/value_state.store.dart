@@ -159,7 +159,7 @@ abstract class _ValueStateBase<ValueType> extends Disposable with Store {
         state.setAlreadyExecuted(true);
       }
     }();
-    return executeFuture.then((_) => this.value);
+    return executeFuture.then((_) => value);
   }
 
   final List<VoidCallback> _disposers = [];

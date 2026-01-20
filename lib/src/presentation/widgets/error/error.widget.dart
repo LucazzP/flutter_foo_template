@@ -41,7 +41,7 @@ class ErrorWidget extends StatelessWidget {
             TextButton(
               onPressed: clearErrorState,
               child: Text(
-                AppLocalizations.of(context)!.ok,
+                AppLocalizations.of(context).ok,
               ),
             ),
           ],
